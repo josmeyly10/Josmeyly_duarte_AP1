@@ -1,0 +1,57 @@
+﻿@page "/Aporte/Eliminar/{AporteId:int}"
+@inject AporteService aporteService
+@inject NavigationManager navigationManager
+
+<PageTitle>Eliminar  El Aporte</PageTitle>
+
+
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header text-center">
+            <h5 class="card-title">Eliminar Aporte</h5>
+        </div>
+
+        <div class="card-body text-center">
+            <p>¿Está seguro de que desea eliminar el aporte? <strong>@aporte?.Persona</strong>?</p>
+            <p>Esta acción no se puede deshacer.</p>
+            <ValidationMessage For="(() => Message)" />
+        </div>
+
+        <div class="card-footer text-center mt-2">
+            <a href="/Aporte/Index" class="btn btn-secondary"> <span class="bi bi-arrow-left"></span> Volver</a>
+            <button type="button" class="btn btn-danger bi bi-trash" @onclick="Eliminar"> Eliminar</button>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public int AporteId { get; set; }
+
+    public Aporte aporte { get; set; } = new Aporte();
+    public string? Message { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        aporte = await aporteService.Buscar(AporteId);
+    }
+
+    private async Task Eliminar()
+    {
+        var eliminado = await aporteService.Eliminar(aporte.AporteId);
+
+        if (eliminado)
+        {
+            Message = "Se ha eliminado exitosamente";
+
+            navigationManager.NavigateTo("/Aporte/Index");
+        }
+        else
+        {
+            Message = "No se ha podido eliminar correctamente";
+        }
+    }
+}
+
+    
