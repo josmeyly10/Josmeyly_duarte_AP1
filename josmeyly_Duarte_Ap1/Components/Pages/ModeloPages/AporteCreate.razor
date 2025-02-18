@@ -1,0 +1,103 @@
+﻿@page "/Aporte/Create"
+@inject AporteService aporteService 
+@rendermode InteractiveServer
+@inject NavigationManager navigationManager
+
+
+@*HTML*@
+<PageTitle>Create</PageTitle>
+<EditForm Model="aporte" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h5 class="card-title">Crear registro de Aportes</h5>
+            </div>
+
+            <div class="card-body ">
+
+                @*Fecha*@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Fecha</strong></label>
+                    <InputDate class="form-control" @bind-Value="aporte.Fecha"></InputDate>
+                    <ValidationMessage For="(() => aporte.Fecha)" />
+                </div>
+                @*Persona*@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Persona</strong></label>
+                    <InputText class="form-control" @bind-Value="aporte.Persona"></InputText>
+                    <ValidationMessage For="(() => aporte.Persona)" />
+                </div>
+                @*Observacion*@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Observacion</strong></label>
+                    <InputText class="form-control" @bind-Value="aporte.Observacion"></InputText>
+                    <ValidationMessage For="(() => aporte.Observacion)" />
+                </div>
+
+
+                @*Monto*@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Monto</strong></label>
+                    <InputNumber class="form-control" @bind-Value="aporte.Monto"></InputNumber>
+                    <ValidationMessage For="(() => aporte.Monto)" />
+                </div>
+            </div>
+
+            @*footer*@
+            <div class="card-footer text-center mt-2">
+                <a href="/Aporte/Index" class="btn btn-secondary"> <span class="bi bi-arrow-left"></span> Volver</a>
+                <button type="submit" class="btn btn-primary bi bi-floppy"> Guardar</button>
+            </div>
+        </div>
+    </div>  
+</EditForm>
+
+
+
+@code {
+    [Parameter]
+    public int AporteId { get; set; }
+
+    public Aporte aporte { get; set; } = new Aporte();
+
+    public string? Message { get; set; } = string.Empty;
+
+    public async Task Guardar()
+    {
+        if (await Validar())
+        {
+            Message = " ya existe un aporte con dicho nombre";
+            return;
+        }
+        var crear = await aporteService.Guardar(aporte);
+
+        if (crear)
+        {
+            Message = "se ha creado exitosamente ";
+            navigationManager.NavigateTo("/Aporte/Index");
+        }
+        else
+        {
+            Message = " no se ha creado ";
+        }
+    }
+    private async Task<bool> Validar()
+    {
+        var existe = await aporteService.ExisteAporte(aporte.AporteId, aporte.Persona);
+        return existe;
+    }
+
+    public void volver()
+    {
+        navigationManager.NavigateTo("/Aporte/Index");
+    }
+
+    public void Nuevo()
+    {
+        this.aporte = new Aporte();
+
+    }
+}
